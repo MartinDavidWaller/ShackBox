@@ -60,13 +60,16 @@
 //  properly.
 
 #include <NeoSWSerial.h>
+#include <Math.h>
 #include <LiquidCrystal_I2C.h>
+#include <Wire.h> 
+#include <SPI.h>
 #include <Adafruit_BMP085.h>
 
 // https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library
 // https://github.com/SlashDevin/NeoSWSerial
 
-// Version / Copyright details
+// Version / Copyright deatils
 
 #define PROGRAM_NAME "ShackBox"
 #define PROGRAM_VERSION "V1.4"
@@ -863,7 +866,7 @@ void loop() {
             padDisplayLineBufferTo(PRESSURE_START,' ');
             if ((false == oddLine) || (true == isEmptyRingBuffer()))
             {                      
-              // Read the current pressure. We may read the altitude correct
+              // Read the current pressure. We may reas the altitude correct
               // version if we know out height.
 
               double currentPressure;
