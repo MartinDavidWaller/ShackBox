@@ -49,7 +49,7 @@
 //  December 12th, 2017 M.D.Waller
 //  a) Added support for Worked All Britain squares. It will now
 //  swap the QRA with the WAB every second. The code for this was
-//  derived from http://www.dorcus.co.uk/carabus/ll_ngr.html ran
+//  derived from http://www.dorcus.co.uk/carabus/ll_ngr.html
 //  by Roger Muggleton.
 //
 //  December 19th, 2017 M.D.Waller
@@ -60,9 +60,7 @@
 //  properly.
 
 #include <NeoSWSerial.h>
-#include <Math.h>
 #include <LiquidCrystal_I2C.h>
-#include <Wire.h> 
 #include <SPI.h>
 #include <Adafruit_BMP085.h>
 
