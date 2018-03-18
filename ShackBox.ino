@@ -58,6 +58,17 @@
 //  corrected to read as it would do at sea level.
 //  b) Shuffled the display slightly to ensure data gets displayed
 //  properly.
+//
+//  March 18th, 2018 M.D.Waller
+//  Following requests from people building the ShackBox the changes
+//  below have been made.
+//  a) The FLIP_SECONDS manifest can be used to control the frequency
+//  with which the data formats are flipped.
+//  b) The format used to display Latitude and Longitude can be controlled
+//  by the LATLON_FORMAT_ODD and LATLON_FORMAT_EVEN manifests. These can be
+//  set to one of three values LATLON_FORMAT_DMS (degrees minutes seconds), 
+//  LATLON_FORMAT_DD_MMMMM (degrees decimal degrees), or LATLON_FORMAT_DDMM_MMM
+//  (degrees minutes decimal minutes).
 
 #include <NeoSWSerial.h>
 #include <LiquidCrystal_I2C.h>
@@ -70,9 +81,22 @@
 // Version / Copyright deatils
 
 #define PROGRAM_NAME "ShackBox"
-#define PROGRAM_VERSION "V1.4"
+#define PROGRAM_VERSION "V1.5"
 #define BETA_TEXT ""
 #define G0PJO_TEXT "M.D.Waller G0PJO"
+
+// CHANGE THIS TO ALTER THE SECOND COUNT BETWEEN FLIPPING THE DATA FORMAT
+
+#define FLIP_SECONDS 1
+
+#define LATLON_FORMAT_DMS 0
+#define LATLON_FORMAT_DD_DDDDD 1
+#define LATLON_FORMAT_DDMM_MMM 2
+
+// CHANGE THESE TO ALTER THE LATITUDE / LONGUTIDE DISPLAY FORMATS. 
+
+#define LATLON_FORMAT_ODD LATLON_FORMAT_DMS
+#define LATLON_FORMAT_EVEN LATLON_FORMAT_DD_DDDDD
 
 // Math constants
 
@@ -184,6 +208,7 @@ struct DegreesMinutesSeconds
   double Minutes;
   double Seconds;
   double DecimalDegrees;
+  double DegreesDecimalMinutes;
   char Suffix;
 };
 
@@ -232,6 +257,7 @@ char gpsBuffer[GPS_BUFFER_SIZE];
 int gpsBufferIndex = 0;
 char elementBuffer[80];
 bool oddLine = false;
+int flipCount = FLIP_SECONDS;
 struct DegreesMinutesSeconds dmsLatitude[1];
 struct DegreesMinutesSeconds dmsLongitude[1];
 
@@ -376,22 +402,58 @@ void addDoubleToDisplayLineBuffer(double v,int decimalPlaces)
   }
 }
 
+void addDMSAsDD_DDDDDToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
+{
+  addDoubleToDisplayLineBuffer(dms->DecimalDegrees,5);  
+}
+
+void addDMSAsDMSToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
+{
+  addDoubleToDisplayLineBuffer(dms->Degrees,0);
+  addCharToDisplayLineBuffer(' ');
+  addDoubleToDisplayLineBuffer(dms->Minutes,0);
+  addCharToDisplayLineBuffer(' ');
+  addDoubleToDisplayLineBuffer(dms->Seconds,0);  
+}
+
+void addDMSAsDDMM_MMMToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
+{
+  addDoubleToDisplayLineBuffer(dms->DegreesDecimalMinutes,3);  
+}
+
+void addDMSToDisplayLineBufferInFormat(struct DegreesMinutesSeconds *dms, int format)
+{ 
+  switch(format)
+  {
+    case LATLON_FORMAT_DMS:
+
+      addDMSAsDMSToDisplayLineBuffer(dms);
+      break;
+      
+    case LATLON_FORMAT_DD_DDDDD:
+    
+      addDMSAsDD_DDDDDToDisplayLineBuffer(dms);
+      break;
+
+    case LATLON_FORMAT_DDMM_MMM:
+    
+      addDMSAsDDMM_MMMToDisplayLineBuffer(dms);
+      break;
+  }
+
+  addCharToDisplayLineBuffer(dms->Suffix); 
+}
+
 void addDMSToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
 { 
   if (false == oddLine)
   {
-    addDoubleToDisplayLineBuffer(dms->DecimalDegrees,5);
+    addDMSToDisplayLineBufferInFormat(dms,LATLON_FORMAT_ODD);
   }
   else
   {
-    addDoubleToDisplayLineBuffer(dms->Degrees,0);
-    addCharToDisplayLineBuffer(' ');
-    addDoubleToDisplayLineBuffer(dms->Minutes,0);
-    addCharToDisplayLineBuffer(' ');
-    addDoubleToDisplayLineBuffer(dms->Seconds,0);    
+    addDMSToDisplayLineBufferInFormat(dms,LATLON_FORMAT_EVEN);
   }      
-
-  addCharToDisplayLineBuffer(dms->Suffix); 
 }
 
 void writeDisplayLineBuffer(int row)
@@ -586,7 +648,8 @@ bool emptyString(char *stringPointer)
 
 void nmeaDecimalDegreesToDMS(double nmeaDecimalDMS,struct DegreesMinutesSeconds *dms)
 {
-
+    dms->DegreesDecimalMinutes = nmeaDecimalDMS;
+    
     // Don't use abs(), the value gets tunred into an integer!
     
     double absNmeaDecimalDMS = nmeaDecimalDMS > 0 ? nmeaDecimalDMS : -1 * nmeaDecimalDMS;
@@ -1070,9 +1133,14 @@ void loop() {
 
             writeDisplayLineBuffer(QRA_ROW);                            
             
-            // Invert the line indicator
-        
-            oddLine = !oddLine;
+            // Invert the line indicator as required
+
+            flipCount--;
+            if (0 == flipCount)
+            {
+              oddLine = !oddLine;
+              flipCount = FLIP_SECONDS;
+            }
           }
         }
 
