@@ -69,6 +69,11 @@
 //  set to one of three values LATLON_FORMAT_DMS (degrees minutes seconds), 
 //  LATLON_FORMAT_DD_MMMMM (degrees decimal degrees), or LATLON_FORMAT_DDMM_MMM
 //  (degrees minutes decimal minutes).
+//
+//  March 21st, 2018 M.D.Waller
+//  a) In a picture from George I noticed that western latitudes were being
+//  prefixed by a nagative sign which was wrong. This has now been fixed.
+//
 
 #include <NeoSWSerial.h>
 #include <LiquidCrystal_I2C.h>
@@ -81,7 +86,7 @@
 // Version / Copyright deatils
 
 #define PROGRAM_NAME "ShackBox"
-#define PROGRAM_VERSION "V1.6?"
+#define PROGRAM_VERSION "V1.6"
 #define BETA_TEXT ""
 #define G0PJO_TEXT "M.D.Waller G0PJO"
 
