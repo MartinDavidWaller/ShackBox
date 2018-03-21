@@ -81,7 +81,7 @@
 // Version / Copyright deatils
 
 #define PROGRAM_NAME "ShackBox"
-#define PROGRAM_VERSION "V1.5"
+#define PROGRAM_VERSION "V1.6?"
 #define BETA_TEXT ""
 #define G0PJO_TEXT "M.D.Waller G0PJO"
 
@@ -404,7 +404,8 @@ void addDoubleToDisplayLineBuffer(double v,int decimalPlaces)
 
 void addDMSAsDD_DDDDDToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
 {
-  addDoubleToDisplayLineBuffer(dms->DecimalDegrees,5);  
+  double valueToDisplay = (dms->DecimalDegrees > 0) ? dms->DecimalDegrees : -1 * dms->DecimalDegrees;
+  addDoubleToDisplayLineBuffer(valueToDisplay,5);  
 }
 
 void addDMSAsDMSToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
@@ -418,7 +419,8 @@ void addDMSAsDMSToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
 
 void addDMSAsDDMM_MMMToDisplayLineBuffer(struct DegreesMinutesSeconds *dms)
 {
-  addDoubleToDisplayLineBuffer(dms->DegreesDecimalMinutes,3);  
+  double valueToDisplay = (dms->DegreesDecimalMinutes > 0) ? dms->DegreesDecimalMinutes : -1 * dms->DegreesDecimalMinutes;
+  addDoubleToDisplayLineBuffer(valueToDisplay,3);  
 }
 
 void addDMSToDisplayLineBufferInFormat(struct DegreesMinutesSeconds *dms, int format)
@@ -650,7 +652,7 @@ void nmeaDecimalDegreesToDMS(double nmeaDecimalDMS,struct DegreesMinutesSeconds 
 {
     dms->DegreesDecimalMinutes = nmeaDecimalDMS;
     
-    // Don't use abs(), the value gets tunred into an integer!
+    // Don't use abs(), the value gets turned into an integer!
     
     double absNmeaDecimalDMS = nmeaDecimalDMS > 0 ? nmeaDecimalDMS : -1 * nmeaDecimalDMS;
     
