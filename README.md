@@ -40,4 +40,28 @@
 # At this point your software is installed. This the circuit is
 # complete and correctly built then you should see data on the
 # display.
+#
+# Fault Finding
+#
+# The BMP180 and I2C LCD units sit on the I2C bus and each has a unique address. 
+#
+# The Adafruit BMP085 code assumes an address of 0x77 – see Adafruit_BMP085.h line 30.
+#
+# The I2C LCD code assumes an address of 0x27 – see ShackBox.ino line 280.
+#
+# If either of these are incorrect that you will get failure. If the BMP085 address is wrong, 
+# then the temperature / pressure will probably display as zero. If the I2C LCD address is wrong, 
+# then you will get no display.
+#
+# If problems are found, then the code here:
+#
+# https://playground.arduino.cc/Main/I2cScanner
+#
+# can be used to scan the bus a derive the correct addresses. It’s probably best to unplug one
+# of the devices, and the easy one to unplug is the LCD, so remove any confusion about which 
+# address is being returned. 
+#
+# The code should then be changed to reflect any new addresses and recompiled.
+#
+
 
