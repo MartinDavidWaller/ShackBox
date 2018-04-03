@@ -74,6 +74,10 @@
 //  a) In a picture from George I noticed that western latitudes were being
 //  prefixed by a nagative sign which was wrong. This has now been fixed.
 //
+//  April 3rd, 2018 M.D.Waller
+//  a) With help from Barry we have added more options to control the WAB output.
+//  Barry was using it outside the valid range for a WAB loction square so we now
+//  have 3 WAB options. See WAB_OUTPUT below for more details.
 
 #include <NeoSWSerial.h>
 #include <LiquidCrystal_I2C.h>
@@ -86,7 +90,7 @@
 // Version / Copyright deatils
 
 #define PROGRAM_NAME "ShackBox"
-#define PROGRAM_VERSION "V1.6"
+#define PROGRAM_VERSION "V1.7"
 #define BETA_TEXT ""
 #define G0PJO_TEXT "M.D.Waller G0PJO"
 
@@ -98,10 +102,24 @@
 #define LATLON_FORMAT_DD_DDDDD 1
 #define LATLON_FORMAT_DDMM_MMM 2
 
-// CHANGE THESE TO ALTER THE LATITUDE / LONGUTIDE DISPLAY FORMATS. 
+// CHANGE THESE TWO LINES TO ALTER THE LATITUDE / LONGUTIDE DISPLAY FORMATS. THE
+// FIRST CONTROLS THE ODD FORMAT AND THE SECONDS CONTROLS THE EVEN FORMAT.
 
 #define LATLON_FORMAT_ODD LATLON_FORMAT_DMS
 #define LATLON_FORMAT_EVEN LATLON_FORMAT_DD_DDDDD
+
+#define WAB_NORTH_LIMIT 62
+#define WAB_SOUTH_LIMIT 50
+#define WAB_WEST_LIMIT -10
+#define WAB_EAST_LIMIT 4
+
+#define WAB_NO 0                      // Do not show WAB at all.
+#define WAB_YES 1                     // Show WAB but display WEB? if invalid
+#define WAB_ONLY_IF_VALID 2           // Show WAB but display QRA if invalid
+
+// CHANGE THIS LINE TO CONTROL THE WAB OUTPUT
+
+#define WAB_OUTPUT WAB_YES
 
 // Math constants
 
@@ -585,6 +603,11 @@ char *toWAB(double lat, double lon)
   return wab;
 }
 
+boolean wabValid(double lat, double lon)
+{
+  return ((lat <= WAB_NORTH_LIMIT) && (lat >= WAB_SOUTH_LIMIT) && (lon >= WAB_WEST_LIMIT) && (lon <= WAB_EAST_LIMIT));
+}
+
 /*
  * This method is called to locate the n'th element in an NMEA sentence. It
  * will only return a pointer if the element has been found and is not of
@@ -990,7 +1013,7 @@ void loop() {
               if (diff < 0)
                 diff *= -1;
                 
-              Serial.print("diff = ");Serial.print(diff);Serial.print("\n");
+              //Serial.print("diff = ");Serial.print(diff);Serial.print("\n");
               
               if (pressureNow > pressureThen)
               {
@@ -1116,11 +1139,35 @@ void loop() {
               // Calculate the QRA
 
               padDisplayLineBufferTo(QRA_WAB_START,' ');
+
+#if WAB_OUTPUT == WAB_NO    
+
+              addStringToDisplayLineBuffer(toQRA(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees));          
               
+#elif WAB_OUTPUT == WAB_YES
+
               if (true == oddLine)
                 addStringToDisplayLineBuffer(toQRA(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees));
               else
-                addStringToDisplayLineBuffer(toWAB(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees));
+              {
+                if (true == wabValid(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees))
+                  addStringToDisplayLineBuffer(toWAB(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees));
+                else
+                  addStringToDisplayLineBuffer("WAB?");
+              }
+                
+#else
+
+              if (true == oddLine)
+                addStringToDisplayLineBuffer(toQRA(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees));
+              else
+              {
+                if (true == wabValid(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees))
+                  addStringToDisplayLineBuffer(toWAB(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees));
+                else
+                  addStringToDisplayLineBuffer(toQRA(dmsLatitude[0].DecimalDegrees,dmsLongitude[0].DecimalDegrees));
+              }
+#endif
 
               padDisplayLineBufferTo(10,' ');
             }  
