@@ -79,6 +79,11 @@
 //  Barry was using it outside the valid range for a WAB loction square so we now
 //  have 3 WAB options. See WAB_OUTPUT below for more details.
 
+// ToDo
+//
+//  - Add Sun Rise and Sun Set times!
+//  - Add the ability to specify just metric or just imperial for temperature, height, etc.
+
 #include <NeoSWSerial.h>
 #include <LiquidCrystal_I2C.h>
 #include <SPI.h>
