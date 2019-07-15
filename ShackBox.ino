@@ -78,6 +78,10 @@
 //  a) With help from Barry we have added more options to control the WAB output.
 //  Barry was using it outside the valid range for a WAB loction square so we now
 //  have 3 WAB options. See WAB_OUTPUT below for more details.
+//
+//  July 12th, 2019 M.D.Waller
+//  a) With help from Mark, G6WRB, we've added code to turn the backlight off between 
+//  certain hours.
 
 // ToDo
 //
@@ -95,9 +99,23 @@
 // Version / Copyright deatils
 
 #define PROGRAM_NAME "ShackBox"
-#define PROGRAM_VERSION "V1.7"
+#define PROGRAM_VERSION "V1.8"
 #define BETA_TEXT ""
 #define G0PJO_TEXT "M.D.Waller G0PJO"
+
+// CHANGE THESE LINES TO TURN OFF THE DISPLAY BACK LIGHT BETWEEN TWO
+// TIMES
+
+#define TURN_BACK_LIGHT_OFF_YES 1
+#define TURN_BACK_LIGHT_OFF_NO 0
+
+#define TURN_BACK_LIGHT_OFF TURN_BACK_LIGHT_OFF_YES
+
+#define BACK_LIGHT_ON_HOUR 06
+#define BACK_LIGHT_ON_MINUTE 00
+
+#define BACK_LIGHT_OFF_HOUR 21
+#define BACK_LIGHT_OFF_MINUTE 00
 
 // CHANGE THIS TO ALTER THE SECOND COUNT BETWEEN FLIPPING THE DATA FORMAT
 
@@ -912,6 +930,57 @@ void loop() {
                 addRingBuffer(bmp.readPressure());
                 lastPressureChangeMinute = minutes;
               }
+
+#if TURN_BACK_LIGHT_OFF == TURN_BACK_LIGHT_OFF_YES
+
+              // We also need to turn the backlight on and off as required.
+              
+              // We need access to the hour
+
+              int hours = (timePointer[0] - '0') * 10 + (timePointer[1] - '0');
+
+              // Decide which way round we are? Is the on time before the off time or
+              // the other way round?
+
+              int onMinutes = BACK_LIGHT_ON_HOUR * 60 + BACK_LIGHT_ON_MINUTE;
+              int offMinutes = BACK_LIGHT_OFF_HOUR * 60 + BACK_LIGHT_OFF_MINUTE;
+              int nowMinutes = hours * 60 + minutes;
+              
+              if (onMinutes < offMinutes) {
+
+                // Typically this would be lights between 09:00 and 21:00
+                
+                if ((nowMinutes >= onMinutes) && (nowMinutes < offMinutes)) {
+
+                  // We want the light on
+
+                  lcd.backlight();
+                }
+                else {
+
+                  // We want the light off
+
+                  lcd.noBacklight();                  
+                }
+              }
+              else {
+
+                // Typically this would be lights between 21:00 and 09:00
+
+                if ((nowMinutes >= onMinutes) || (nowMinutes < offMinutes)) {
+
+                  // We want the light on
+
+                  lcd.backlight();
+                }
+                else {
+
+                  // We want the light off
+
+                  lcd.noBacklight();                  
+                }                
+              }
+#endif              
             }
 
             // Display the line
