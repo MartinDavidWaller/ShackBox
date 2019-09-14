@@ -1,4 +1,7 @@
-ShackBox
+# ShackBox
+
+The ShackBox project is documented in Practical Wireless, April 2018. If you require further information,
+such as the associated circuit diagram, then please contact me at martin@the-wallers.net.
 
 To build and install this software you will need to:
 
