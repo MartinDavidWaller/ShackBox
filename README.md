@@ -70,8 +70,8 @@ If you get the spash screen up and nothing more then the GPS unit may be emittin
 talker IDs in the NMEA. It would be worth looking at lines 146 and 155 and changing the $GP
 text to $GN.
 
-There has been a report of an uploading issue where the code commpiles but fails to upload
-to the Arduino. typically this looks like:
+There has been a report of an uploading issue where the code compiles but fails to upload
+to the Arduino. Typically this looks like:
 
 avrdude: stk500_getsync() attempt 10 of 10: not in sync: resp=0x00
 
