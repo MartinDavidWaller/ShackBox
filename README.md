@@ -3,6 +3,14 @@
 The ShackBox project is documented in Practical Wireless, April 2018. If you require further information,
 such as the associated circuit diagram, then please contact me at martin@the-wallers.net.
 
+Update May 7th, 2023
+
+Since writing this software libraries have moved on, some are difficult to find, and some no longer
+work when combined with other required librraies. To help resolve these issues the three required libraries
+are available in the "Required Libraries" folder. To make use of these simply copy all three library folders
+to the This PC > Document > Arduino > Libraries folder - this is for the Arduion IDE V1.8.9. If you do this
+then step 1 below can be ignored.
+
 To build and install this software you will need to:
 
 1) Install the Ardiuno Interactive Development Environment. This
